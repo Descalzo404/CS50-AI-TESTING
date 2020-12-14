@@ -59,29 +59,22 @@ def transition_model(corpus, page, damping_factor):
     """
     #Starting the transition model dict
     transition_model = {}
-    for key in corpus.keys():
-        transition_model[key] == 0
 
+    #Getting the number of links
+    number_of_links = len(corpus[page])
+    number_of_pages = len(corpus)
     #If the page has links to other pages
-    if corpus[page] != None:
-        #Getting the number of links
-        n = len(corpus[page])
-        #Getting the probability for the links
-        prob = damping_factor/n
+    if number_of_links:
+
+        
+        #Adding this probability to the transition model
+        for p in corpus.keys():
+            transition_model[p] = (1 - damping_factor)/number_of_pages
 
         #Defining the probability for clicking on every other page that is linked to the original page
         for p in corpus[page]:
-            transition_model[p] == prob
-        
-        #Getting the number of pages in the corpus
-        n = len(corpus.keys())
-        #Probability for choosing randomly a page between every page in the corpus
-        prob = (1 - damping_factor)/n
+            transition_model[p] += damping_factor/number_of_links
 
-        #Adding this probability to the transition model
-        for p in corpus.keys():
-            transition_model[p] += prob
-    
     else:
         n = len(corpus.keys)
         prob = 1/n
@@ -101,17 +94,22 @@ def sample_pagerank(corpus, damping_factor, n):
     PageRank values should sum to 1.
     """
     samples = []
+    pageranks = {}
     page_list = list(corpus.keys())
     page = random.choice(page_list)
-    samples.append[page]
+    samples.append(page)
 
     while len(samples) < n:
         model = transition_model(corpus, page, damping_factor)
         page = random.choices(list(model.keys()), list(model.values()), k = 1)[0]
         samples.append(page)
+    
+    n = len(samples)
+    for page in page_list:
+        num = samples.count(page)
+        pageranks[page] = num/n
 
-
-    raise NotImplementedError
+    return pageranks
 
 
 def iterate_pagerank(corpus, damping_factor):
