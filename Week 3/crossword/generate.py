@@ -116,7 +116,7 @@ class CrosswordCreator():
         # Set revised to false because no revision was made yet
         revised = False
         # Get the overlap between x and y, assuming ther is only one overlap between these two variables
-        overlap = self.crossword.overlaps[x, y]
+        overlap = self.Crossword.overlaps[x, y]
         # For every value in X's domain
         for value_x in self.domains[x]:
             # Get the letter of the word in the domain that will fit in the overlap
@@ -144,7 +144,18 @@ class CrosswordCreator():
         Return True if arc consistency is enforced and no domains are empty;
         return False if one or more domains end up empty.
         """
-        raise NotImplementedError
+        if arcs == None:
+            queue = Crossword.overlaps.keys()
+        else: 
+            queue = arcs
+        while queue:
+            (x, y) = queue.pop()
+            if revise(x, y):
+                if len(self.domains[x]) == 0:
+                    return false
+                for neighbor in (Crossword.neighbors(x) - y):
+                    queue.append(x, neighbor)
+        return True
 
     def assignment_complete(self, assignment):
         """
