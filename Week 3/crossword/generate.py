@@ -161,8 +161,12 @@ class CrosswordCreator():
         Return True if `assignment` is complete (i.e., assigns a value to each
         crossword variable); return False otherwise.
         """
-        if (set(assignment) - self.crossword.variables) != 0:
+        for variable in self.crossword.variables:
+            if variable not in assignment.keys():
                 return False
+            if assignment[variable] not in self.crossword.words:
+                return False
+        
         return True
 
     def consistent(self, assignment):
@@ -200,7 +204,21 @@ class CrosswordCreator():
         The first value in the list, for example, should be the one
         that rules out the fewest values among the neighbors of `var`.
         """
-        return self.domains[var]
+        n = dict()
+
+        for word in self.domains[var]:
+            n[word] = 0
+            for neighbor in self.crossword.neighbors(var):
+                if neighbor not in assignment:
+                    for word_neighbor in self.domains[neighbor]:
+                        if word == word_neighbor:
+                            n[word] +=1
+                            continue
+                        x, y = self.crossword.overlaps[var, neighbor]
+                        if word[x] != word_neighbor[y]:
+                            n[word] += 1
+
+        return sorted(n, key=n.get)
 
 
     def select_unassigned_variable(self, assignment):
@@ -222,7 +240,6 @@ class CrosswordCreator():
             elif len(self.crossword.neighbors(variable)) >= len(self.crossword.neighbors(best)):
                 best = variable
                 continue
-        print(best)
         return best
 
     def backtrack(self, assignment):
