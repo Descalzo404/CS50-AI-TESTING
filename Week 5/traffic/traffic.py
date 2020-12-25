@@ -9,7 +9,7 @@ from sklearn.model_selection import train_test_split
 EPOCHS = 10
 IMG_WIDTH = 30
 IMG_HEIGHT = 30
-NUM_CATEGORIES = 43
+NUM_CATEGORIES = 43 # 43 large data set and 3 small data set
 TEST_SIZE = 0.4
 
 
@@ -58,7 +58,18 @@ def load_data(data_dir):
     be a list of integer labels, representing the categories for each of the
     corresponding `images`.
     """
-    raise NotImplementedError
+    images = list()
+    labels = list()
+    for folder in os.listdir(data_dir):
+        image_path = os.path.join(data_dir, folder)
+        if os.path.isdir(image_path):
+            for image_file in os.listdir(image_path):
+                image = cv2.imread(os.path.join(image_path, image_file), cv2.IMREAD_COLOR)
+                image = cv2.resize(image, (IMG_WIDTH, IMG_HEIGHT), interpolation=cv2.INTER_AREA)
+                images.append(image)
+                labels.append(int(folder))
+
+    return images, labels
 
 
 def get_model():
@@ -67,6 +78,7 @@ def get_model():
     `input_shape` of the first layer is `(IMG_WIDTH, IMG_HEIGHT, 3)`.
     The output layer should have `NUM_CATEGORIES` units, one for each category.
     """
+    
     raise NotImplementedError
 
 
