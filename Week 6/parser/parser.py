@@ -1,4 +1,5 @@
 import nltk
+from nltk.tokenize import word_tokenize
 import sys
 import re
 
@@ -68,7 +69,8 @@ def preprocess(sentence):
     and removing any word that does not contain at least one alphabetic
     character.
     """
-    word = nltk.word_tokenize(sentence.lower())
+    sentence = sentence.lower()
+    words = word_tokenize(sentence)
     sent = [i for i in words if re.match('[a-z]', i)]
     return sent
 
@@ -82,7 +84,7 @@ def np_chunk(tree):
     """
     chunks = []
     for subtree in tree.subtrees(lambda t: t.label() == 'NP'):
-        if not sub_trees_NP(subtree):
+        if not subtree_contain_NP(subtree):
             chunks.append(subtree)
     return chunks
 
@@ -91,11 +93,10 @@ def subtree_contain_NP(subtree):
     Checks if a given subtree has a noun phrase, if there is a noun phrase 
     in this subtree the function return true.
     """
-    subtrees = list(subtree.subtrees(lambda t: t.label() == 'NP' and t != subtree))
-    if not subtrees:
-        return False
-    else:
-        return True
+    for sub_subtree in subtree.subtrees():
+        if sub_subtree.label() == "NP" and sub_subtree != subtree:
+            return True
+    return False
 
 if __name__ == "__main__":
     main()
