@@ -79,6 +79,19 @@ def compute_idfs(documents):
     Any word that appears in at least one of the documents should be in the
     resulting dictionary.
     """
+    IDF_Values = dict()
+    list_words = list()
+    for name in documents:
+        for word in documents[name]:
+            list_words.append(word)
+    # TODO Get rid of the word repetition in the list_words
+    for word in list_words:
+        i = 0
+        for name in documents:
+            if word in documents[name]:
+                i += 1
+        # TODO Calculate the word's IDF value and append to IDF_Values[word]
+
     raise NotImplementedError
 
 
