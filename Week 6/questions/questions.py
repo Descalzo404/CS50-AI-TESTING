@@ -3,6 +3,7 @@ from nltk.tokenize import word_tokenize
 import re
 import sys
 import os
+import math
 
 FILE_MATCHES = 1
 SENTENCE_MATCHES = 1
@@ -83,16 +84,18 @@ def compute_idfs(documents):
     list_words = list()
     for name in documents:
         for word in documents[name]:
-            list_words.append(word)
-    # TODO Get rid of the word repetition in the list_words
+            if word not in list_words:
+                list_words.append(word)
+    
     for word in list_words:
         i = 0
         for name in documents:
             if word in documents[name]:
                 i += 1
-        # TODO Calculate the word's IDF value and append to IDF_Values[word]
+        idf = math.log(len(documents) / i)
+        IDF_Values[word] = idf
 
-    raise NotImplementedError
+    return IDF_Values
 
 
 def top_files(query, files, idfs, n):
