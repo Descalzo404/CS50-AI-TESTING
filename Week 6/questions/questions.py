@@ -1,6 +1,6 @@
 import nltk
 from nltk.tokenize import word_tokenize
-import re
+import string
 import sys
 import os
 import math
@@ -54,7 +54,7 @@ def load_files(directory):
     """
     file_dict = dict()
     for filename in os.listdir(directory):
-        with open(os.path.join(directory, filename)) as f:
+        with open(os.path.join(directory, filename), "r", encoding='utf8') as f:
             file_dict[filename] = f.read()  
     return file_dict
 
@@ -67,9 +67,8 @@ def tokenize(document):
     Process document by coverting all words to lowercase, and removing any
     punctuation or English stopwords.
     """
-    document = document.lower()
-    document = word_tokenize(document)
-    return [word for word in document if re.match('[a-z]', word) and not in nltk.corpus.stopwords.words("english")]
+    text = word_tokenize(document.lower())
+    return [word for word in text if word not in nltk.corpus.stopwords.words("english") and word not in string.punctuation]
 
 
 def compute_idfs(documents):
@@ -80,22 +79,25 @@ def compute_idfs(documents):
     Any word that appears in at least one of the documents should be in the
     resulting dictionary.
     """
-    IDF_Values = dict()
-    list_words = list()
+
+    idf_values = dict()
+    
     for name in documents:
+        list_words = list()
         for word in documents[name]:
             if word not in list_words:
                 list_words.append(word)
-    
-    for word in list_words:
-        i = 0
-        for name in documents:
-            if word in documents[name]:
-                i += 1
-        idf = math.log(len(documents) / i)
-        IDF_Values[word] = idf
+                if word not in idf_values:
+                    idf_values[word] = 1
+                else:
+                    idf_values[word] += 1
 
-    return IDF_Values
+    for word in idf_values:
+        temp = math.log(len(documents) / idf_values[word])
+        idf_values[word] = temp
+
+    return idf_values
+
 
 
 def top_files(query, files, idfs, n):
@@ -115,7 +117,7 @@ def top_files(query, files, idfs, n):
         file_ranks[file] = tf_idf
     ranks = dict(sorted(file_ranks.items(), key=lambda item: item[1], reverse=True))
     ranks_list = list(ranks.keys())
-    return ranks_list[:n]
+    return (ranks_list[:n])
 
 
 def top_sentences(query, sentences, idfs, n):
@@ -138,7 +140,7 @@ def top_sentences(query, sentences, idfs, n):
         ranks.append(sentence_ranks)
 
     ranks_sorted = [sentence for sentence, idf_sum, term_density in sorted(ranks, key=lambda item: (item[1], item[2]), reverse=True)]
-    return ranks_sorted[:n]            
+    return (ranks_sorted[:n])            
 
 
 if __name__ == "__main__":
