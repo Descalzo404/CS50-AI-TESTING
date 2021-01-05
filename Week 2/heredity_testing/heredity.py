@@ -140,14 +140,15 @@ def joint_probability(people, one_gene, two_genes, have_trait):
         * everyone not in set` have_trait` does not have the trait.
     """
     probability = 1
-    zero_gene = people.keys() - (one_gene and two_genes)
+    zero_gene = people.keys() - (one_gene | two_genes)
 
     for person in zero_gene:
         father = people[person]["father"]
         mother = people[person]["mother"]
-        if not (father and mother):
-            probability *= (PROBS["trait"][0][person in have_trait] * PROBS["gene"][0])
+        if mother == None:
+            prob = PROBS["gene"][0]
         else:
+            prob = 1
             # Calculating the probabilities of NOT passing the gene
             if mother in zero_gene:
                 prob_m = (1 - PROBS["mutation"])
@@ -161,14 +162,18 @@ def joint_probability(people, one_gene, two_genes, have_trait):
                 prob_f = 0.5
             else:
                 prob_f = PROBS["mutation"]
-            probability *= (prob_f * prob_m)
+            prob *= (prob_f * prob_m)
+
+        prob *= PROBS["trait"][0][person in have_trait]
+        probability *= prob
             
     for person in one_gene:
         father = people[person]["father"]
         mother = people[person]["mother"]
-        if not (father and mother):
-            probability *= (PROBS["trait"][1][person in have_trait] * PROBS["gene"][1])
+        if mother == None:
+            prob = PROBS["gene"][1]
         else:
+            prob = 1
             #Calculating the probability of passing the gene
             if mother in zero_gene:
                 prob_m = PROBS["mutation"]
@@ -183,14 +188,17 @@ def joint_probability(people, one_gene, two_genes, have_trait):
             else:
                 prob_f = (1 - PROBS["mutation"])
             prob = prob_m * (1 - prob_f) + prob_f * (1 - prob_m)
-            probability *= prob
+
+        prob *= PROBS["trait"][1][person in have_trait]
+        probability *= prob
             
     for person in two_genes:
         father = people[person]["father"]
         mother = people[person]["mother"]
-        if not (father and mother):
-            probability *= (PROBS["trait"][2][person in have_trait] * PROBS["gene"][2])
+        if mother == None:
+            prob = PROBS["gene"][2]
         else:
+            prob = 1
             #Calculating the probability of passing the gene
             if mother in zero_gene:
                 prob_m = PROBS["mutation"]
@@ -204,8 +212,10 @@ def joint_probability(people, one_gene, two_genes, have_trait):
                 prob_f = 0.5
             else:
                 prob_f = (1 - PROBS["mutation"])
+            prob *= (prob_m * prob_f)
 
-            probability *= (prob_m * prob_f)
+        prob *= PROBS["trait"][2][person in have_trait]
+        probability *= prob
 
     return probability
 
@@ -240,7 +250,7 @@ def normalize(probabilities):
             probabilities[person]["gene"][value] /= total
         total = sum(probabilities[person]["trait"].values())
         for value in probabilities[person]["trait"]:
-            probabilities[person][trait][value] /= total
+            probabilities[person]["trait"][value] /= total
 
 
 

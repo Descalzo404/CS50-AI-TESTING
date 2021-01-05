@@ -70,7 +70,7 @@ def transition_model(corpus, page, damping_factor):
 
         
         #Adding this probability to the transition model
-        for p in corpus.keys():
+        for p in corpus:
             transition_model[p] = (1 - damping_factor)/number_of_pages
 
         #Defining the probability for clicking on every other page that is linked to the original page
@@ -78,10 +78,10 @@ def transition_model(corpus, page, damping_factor):
             transition_model[p] += damping_factor/number_of_links
 
     else:
-        n = len(corpus.keys)
+        n = len(corpus.keys())
         prob = 1/n
 
-        for key in corpus.keys():
+        for key in corpus:
             transition_model[key] = prob
 
     return transition_model
